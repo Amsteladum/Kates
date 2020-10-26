@@ -1,21 +1,18 @@
 package com.southsound.Kates.data.api.strats;
 
 import com.southsound.Kates.data.User;
+import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-class StringSet {
-
-    @NotNull public String set;
-
-    public String getSet() {
-        return set;
-    }
+interface Muncher {
+    String stringOf(String string);
+    Integer integerOf(Integer integer);
+    <T> HashMap<T, RadixTrie> hashMapOf(HashMap<T, RadixTrie> hashMap);
 }
 
 class RadixTrieEdge {
@@ -25,25 +22,57 @@ class RadixTrieEdge {
 
 class RadixTrieNode {
     boolean isKeyNode;
-    HashMap<String, RadixTrieEdge> children;
+    HashMap<String, RadixTrie> children;
 
-    public RadixTrieNode(HashMap<String, RadixTrieEdge> children, boolean storedKey) {
+    public RadixTrieNode() {}
+
+    public RadixTrieNode(HashMap<String, RadixTrie> children, boolean storedKey) {
         this.children = children;
         this.children = new HashMap<>();
         this.isKeyNode = storedKey;
     }
+
+    public <T> RadixTrieNode(String key, T value, Integer keyIndex) {
+        HashMap<String, RadixTrie> children = new HashMap<>();
+        RadixTrieNode node = new RadixTrieNode();
+        RadixTrie trie = new RadixTrie(null, node);
+
+        if (keyIndex == key.length()) {
+            this.children = children;
+            Map<String, T> mapOfChildren = Map.ofEntries(Map.entry(key, value));
+            //children.forEach(()-> children.merge(() -> trie.matchEdge(node, key)));
+        }
+        else if (keyIndex > trie.size()) { // TODO code ... Ghosted code functions.
+            Set<RadixTrie> reduceChild = new HashSet<>();
+            reduceChild.removeIf(child->Character.isDigit(child.getReferenceCode().charAt(keyIndex)));
+        }
+        else {
+            Set<RadixTrie> replaceChild = new HashSet<>();
+            replaceChild.stream().map(child->Character.toUpperCase(child.charAt(keyIndex)) +
+                    child.substring(1))
+                    .collect(Collectors.toSet())
+                    .forEach(output);
+        }
+    } // TODO Outputting (function) closure for each condition.
 }
 
 public class RadixTrie {
-    RadixTrieNode root;
-    HashMap<String, RadixTrieEdge> children = new HashMap<>();
+    RadixTrie root;
+    RadixTrieNode radixTrieNode;
+    HashMap<String, RadixTrie> children = new HashMap<>();
     User user;
 
-    public RadixTrie() {
-        this.root = new RadixTrieNode(children,false);
+    public RadixTrie getRoot() {
+        return root;
     }
 
-    public RadixTrieNode longestCommonPrefix(RadixTrieNode node, HashMap<String, RadixTrieEdge> string, String prefix) {
+    public RadixTrie(RadixTrie root, RadixTrieNode radixTrieNode) {
+        this.root = root;
+        this.radixTrieNode = radixTrieNode;
+        this.radixTrieNode = new RadixTrieNode();
+    }
+
+    public RadixTrieNode longestCommonPrefix(RadixTrieNode node, HashMap<String, RadixTrie> string, String prefix) {
         if (!StringUtils.isEmpty(string))
             if (node.isKeyNode)
                 longestCommonPrefix(node, string, prefix);
@@ -61,16 +90,16 @@ public class RadixTrie {
         }
     }
 
-    public RadixTrieNode search(RadixTrieNode node, HashMap<String, RadixTrieEdge> string) {
+    public RadixTrieNode search(RadixTrieNode node, HashMap<String, RadixTrie> string) {
         this.children = string;
 
         if (StringUtils.isEmpty(user.getUser()))
-            return node.isKeyNode ? root : node;
+            return node.isKeyNode ? radixTrieNode : node;
 
         return search(node, string);
     }
 
-    public RadixTrieNode matchEdge(RadixTrieNode node, HashMap<String, RadixTrieEdge> string) {
+    public RadixTrie matchEdge(RadixTrieNode node, HashMap<String, RadixTrie> string) {
         node = new RadixTrieNode(children, false);
         //Char c = string.toString().chars(); // TODO code ...
 
@@ -78,14 +107,14 @@ public class RadixTrie {
             return matchEdge(null, string);
         else {
             RadixTrieNode edge, prefix, suffixString, suffixEdge;
-            // TODO code ...
+            // TODO code ... Lambda Operations, Stream.
             edge = node;
 
             //prefix = longestCommonPrefix(node, string, prefix); // TODO Possible replacement of function parameters as a lambda operation.
             //suffixString = longestCommonPrefix(node, string, prefix);
             //suffixEdge = longestCommonPrefix(node, string, prefix);
 
-            Set<Map.Entry<String, RadixTrieEdge>> entrySet = string.entrySet();
+            Set<Map.Entry<String, RadixTrie>> entrySet = string.entrySet();
 
             return matchEdge(node, string);
         }
