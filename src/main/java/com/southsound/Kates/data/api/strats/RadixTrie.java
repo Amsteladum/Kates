@@ -1,19 +1,14 @@
 package com.southsound.Kates.data.api.strats;
 
 import com.southsound.Kates.data.User;
-import org.springframework.lang.NonNull;
+//import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotNull;
+//import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-interface Muncher {
-    String stringOf(String string);
-    Integer integerOf(Integer integer);
-    <T> HashMap<T, RadixTrie> hashMapOf(HashMap<T, RadixTrie> hashMap);
-}
+//import java.util.stream.Stream;
 
 class RadixTrieEdge {
     RadixTrieNode destination;
@@ -22,57 +17,78 @@ class RadixTrieEdge {
 
 class RadixTrieNode {
     boolean isKeyNode;
-    HashMap<String, RadixTrie> children;
+    HashMap<String, RadixTrieNode> children;
 
     public RadixTrieNode() {}
 
-    public RadixTrieNode(HashMap<String, RadixTrie> children, boolean storedKey) {
+    public RadixTrieNode(HashMap<String, RadixTrieNode> children, boolean storedKey) {
         this.children = children;
         this.children = new HashMap<>();
         this.isKeyNode = storedKey;
     }
 
-    public <T> RadixTrieNode(String key, T value, Integer keyIndex) {
-        HashMap<String, RadixTrie> children = new HashMap<>();
+    public String getToStringCode() {
+        return this.children.toString();
+    }
+
+    public <T> RadixTrieNode matchEdge(String key, T value, Integer keyIndex) {
+        HashMap<String, RadixTrieNode> children = new HashMap<>();
+        this.children = children;
         RadixTrieNode node = new RadixTrieNode();
-        RadixTrie trie = new RadixTrie(null, node);
+
+        Set<RadixTrieNode> reducedChild = new HashSet<>();
+
+        reducedChild.add(node);
 
         if (keyIndex == key.length()) {
-            this.children = children;
             Map<String, T> mapOfChildren = Map.ofEntries(Map.entry(key, value));
             //children.forEach(()-> children.merge(() -> trie.matchEdge(node, key)));
+            HashMap<String, RadixTrieNode> child = new HashMap<>(Map.of(key, node));
+
+            key = mapOfChildren.toString();
         }
-        else if (keyIndex > trie.size()) { // TODO code ... Ghosted code functions.
-            Set<RadixTrie> reduceChild = new HashSet<>();
-            reduceChild.removeIf(child->Character.isDigit(child.getReferenceCode().charAt(keyIndex)));
+        else if (keyIndex > children.size()) { // TODO code ... Ghosted code functions.
+            reducedChild.removeIf(child->Character.isDigit(child.getToStringCode().charAt(keyIndex)));
+            key = reducedChild.toString();
         }
         else {
-            Set<RadixTrie> replaceChild = new HashSet<>();
-            replaceChild.stream().map(child->Character.toUpperCase(child.charAt(keyIndex)) +
-                    child.substring(1))
-                    .collect(Collectors.toSet())
-                    .forEach(output);
+            String finalKey = key;
+            Consumer<String> output = s -> s.getChars(keyIndex, keyIndex + 1, finalKey.toCharArray(), keyIndex + 2);
+
+            for (Map.Entry<String, RadixTrieNode> entry: children.entrySet()) {
+                String keyNode = entry.getKey();
+                RadixTrieNode trieNode = entry.getValue();
+                System.out.println("Key Node: " + keyNode + ", Radix Trie Node: " + trieNode + "\n");
+
+                key = entry.toString();
+            }
         }
-    } // TODO Outputting (function) closure for each condition.
+
+        return matchEdge(key, value, keyIndex);
+    } // TODO Method 'matchEdge()' recurses infinitely, and can only end by throwing an exception.
 }
 
 public class RadixTrie {
     RadixTrie root;
     RadixTrieNode radixTrieNode;
-    HashMap<String, RadixTrie> children = new HashMap<>();
+    HashMap<String, RadixTrieNode> children = new HashMap<>();
     User user;
 
     public RadixTrie getRoot() {
         return root;
     }
 
-    public RadixTrie(RadixTrie root, RadixTrieNode radixTrieNode) {
+    public String getToStringCode() {
+        return this.children.toString();
+    }
+
+	public RadixTrie(RadixTrie root, RadixTrieNode radixTrieNode) {
         this.root = root;
         this.radixTrieNode = radixTrieNode;
         this.radixTrieNode = new RadixTrieNode();
     }
 
-    public RadixTrieNode longestCommonPrefix(RadixTrieNode node, HashMap<String, RadixTrie> string, String prefix) {
+    public RadixTrieNode longestCommonPrefix(RadixTrieNode node, HashMap<String, RadixTrieNode> string, String prefix) {
         if (!StringUtils.isEmpty(string))
             if (node.isKeyNode)
                 longestCommonPrefix(node, string, prefix);
@@ -90,7 +106,7 @@ public class RadixTrie {
         }
     }
 
-    public RadixTrieNode search(RadixTrieNode node, HashMap<String, RadixTrie> string) {
+    public RadixTrieNode search(RadixTrieNode node, HashMap<String, RadixTrieNode> string) {
         this.children = string;
 
         if (StringUtils.isEmpty(user.getUser()))
@@ -98,25 +114,31 @@ public class RadixTrie {
 
         return search(node, string);
     }
-
-    public RadixTrie matchEdge(RadixTrieNode node, HashMap<String, RadixTrie> string) {
-        node = new RadixTrieNode(children, false);
-        //Char c = string.toString().chars(); // TODO code ...
-
-        if (node.children == null)
-            return matchEdge(null, string);
-        else {
-            RadixTrieNode edge, prefix, suffixString, suffixEdge;
-            // TODO code ... Lambda Operations, Stream.
-            edge = node;
-
-            //prefix = longestCommonPrefix(node, string, prefix); // TODO Possible replacement of function parameters as a lambda operation.
-            //suffixString = longestCommonPrefix(node, string, prefix);
-            //suffixEdge = longestCommonPrefix(node, string, prefix);
-
-            Set<Map.Entry<String, RadixTrie>> entrySet = string.entrySet();
-
-            return matchEdge(node, string);
-        }
-    }
 }
+
+/*Listing 6.1 class Trie
+
+    #type Char[]
+    Alphabet
+     
+    class Node
+      #type boolean
+      keyNode
+     
+      #type HashMap<Char, Node>
+      children
+     
+      function Node(storesKey)
+        for char in Alphabet do
+          this.children[char] ← null
+        this.keyNode ← storesKey
+     
+    class Trie
+      #type Node
+      root
+     
+      function Trie()
+        root ← new Node(false)
+*
+* Algorithms and Data Structures in Action, Authors: Marcello La Rocca
+* */
