@@ -1,6 +1,5 @@
 package com.southsound.Kates.data;
 
-import junit.runner.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -78,10 +77,10 @@ public class User {
         return new User(this.id, this.username, this.password, this.firstName, this.lastName, this.emailAddress);
     }
 
-    public User id() {
-	    User id = id();
-	    if (!StringUtils.isEmpty(findById(id)) ? !findById(id).equals(findById(getUser())) : null)
-	        return id;
+    public User condition() {
+	    User user = builder();
+	    if (!StringUtils.isEmpty(findById(user)) ? findById(user).equals(findById(getUser())) : findById(user).equals(user))
+	        return user;
 	    else return null;
     }
 }
