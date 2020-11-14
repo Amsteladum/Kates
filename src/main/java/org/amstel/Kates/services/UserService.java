@@ -1,19 +1,19 @@
 package org.amstel.Kates.services;
 
 import org.amstel.Kates.data.User;
+import org.amstel.Kates.data.UserInterfacer;
 import org.amstel.Kates.data.UserRepository;
 
 import org.springframework.util.StringUtils;
 
 public class UserService {
     private final UserRepository repository;
+    UserInterfacer uirs;
 
     public UserService(UserRepository userRepository) { this.repository = userRepository; }
 
-    public User getUser(User id, User user) {
-		return user = (User) (!StringUtils.isEmpty(repository.getUser().findById(id))
-				? !user.getUser().findById(id).equals(repository.getUser().findById(id))
-					: 0);
+    public boolean hasGotUserById(User id, User user) {
+		return StringUtils.isEmpty(uirs.getUser()) ? !uirs.findById(id).equals(uirs.getUser()) : !user.equals(id);
 	}
 	
 	public String getUsername(String userString) {
@@ -25,17 +25,18 @@ public class UserService {
         *  */
         // Long id /*TODO get ID from database, in order to initialize variable.*/ ; // NOTE Convert into a initialized lambda operation.
 
-        repository.findById(user.getUser());
+        repository.findById(uirs.getUser());
 
-        if (!StringUtils.isEmpty(user.getUser()) && !user.getUser().equals(user.getUser())) {
-            user.setUser(user.getUser());
+        User id = getUser(user);
+        if (!StringUtils.isEmpty(uirs.getUser()) && !hasGotUserById(id, user)) {
+            uirs.setUser(uirs.getUser());
         }
 
         return repository.save(user);
     }
 
     public User getUser(User user) {
-        if (!StringUtils.isEmpty(user.getUser()) && !user.getUser().equals(user.getUser()))
+        if (!StringUtils.isEmpty(uirs.getUser()) && !uirs.getUser().equals(uirs.getUser()))
             saveUser(user);
 
         return user;

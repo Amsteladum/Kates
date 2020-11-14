@@ -1,22 +1,13 @@
 package org.amstel.Kates.data.api.methods;
 
 import org.amstel.Kates.data.User;
+import org.amstel.Kates.data.UserInterfacer;
 import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-class StringSet {
-
-    @NotNull public String set;
-
-    public String getSet() {
-        return set;
-    }
-}
 
 class RadixTrieEdge {
     RadixTrieNode destination;
@@ -38,6 +29,7 @@ public class RadixTrie {
     RadixTrieNode root;
     HashMap<String, RadixTrieEdge> children = new HashMap<>();
     User user;
+    UserInterfacer uirs;
 
     public RadixTrie() {
         this.root = new RadixTrieNode(children, false);
@@ -64,7 +56,7 @@ public class RadixTrie {
     public RadixTrieNode search(RadixTrieNode node, HashMap<String, RadixTrieEdge> string) {
         this.children = string;
 
-        if (StringUtils.isEmpty(user.getUser()))
+        if (StringUtils.isEmpty(uirs.getUser()))
             return node.isKeyNode ? root : node;
 
         return search(node, string);
@@ -77,13 +69,19 @@ public class RadixTrie {
         if (node.children == null)
             return matchEdge(null, string);
         else {
-            RadixTrieNode edge, prefix, suffixString, suffixEdge;
-            // TODO code ...
-            edge = node;
+			RadixTrieNode edge, prefix; 
+			RadixTrieEdge suffixString, suffixEdge;
 
+			HashMap<String, RadixTrieEdge> lcpStringMap = new HashMap<>();
+			RadixTrie lcpNode = new RadixTrie();
             //prefix = longestCommonPrefix(node, string, prefix); // TODO Possible replacement of function parameters as a lambda operation.
             //suffixString = longestCommonPrefix(node, string, prefix);
-            //suffixEdge = longestCommonPrefix(node, string, prefix);
+			//suffixEdge = longestCommonPrefix(node, string, prefix);
+			/* TODO; NOTE: If prefix is:
+			lcpNode = longestCommonPrefix(node, string, (prefix == prefix ? prefix != prefix))
+				? longestCommonPrefix(node, (suffixString == prefix ? suffixString != prefix : suffixString), prefix)
+				: longestCommonPrefix(node, (suffixEdge == prefix ? suffixEdge != prefix : suffixEdge), prefix);
+			*/
 
             Set<Map.Entry<String, RadixTrieEdge>> entrySet = string.entrySet();
 
