@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.util.StringUtils;
 
-@Data @Entity(name = "userEntity") @AllArgsConstructor @NoArgsConstructor @Builder
+@AllArgsConstructor @NoArgsConstructor @Builder @Data @Entity(name = "userEntity")
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", updatable = false, nullable = false)
@@ -36,24 +36,4 @@ public class User {
     public User(String firstName, String lastName, String username, String password, String emailAddress) {
         this.id = null; this.firstName = firstName; this.lastName = lastName; this.password = password; this.emailAddress = emailAddress;
     }
-
-    public User getUser() {
-        return User.this;
-    }
-
-    public User setUser(User user) {
-        user.getUser();
-
-        findById(user);
-
-        return setUser(user);
-    } /*TODO Lambda operation (expression) of getting the User ID and then Setting the User ID.*/
-
-	public User findById(User id) {
-
-	    id = (User) (!StringUtils.isEmpty(findById(id))
-			? !findById(id).equals(findById(id))
-				: 0); // TODO Write a Lambda Function.
-        return id;
-	}
 }
